@@ -17,24 +17,22 @@
 * **Entity Framework Core** – ORM
 * **Neo4j** – Graph baza za relacione podatke (timovi, turniri, prijave)
 * **Redis** – Za real-time chat i caching
-* **SignalR** – Real-time komunikacija za chat
 
 ### Frontend
 * **React + TypeScript** – Klijentska aplikacija
-* **Vite** – Build tool
-* **Tailwind CSS** – Styling
-* **Socket.io client** – Real-time chat
 
 ### DevOps
 * **Docker** – Containerizacija baza
 * **Docker Compose** – Orchestration
+* **Redis Insight** - Pogled na redis
+* **Neo4j Browser** - Pogled na Neo4j
 
 ---
 
 ## 🚀 Pokretanje aplikacije (lokalni razvoj)
 
 ### Preduslovi
-* **Docker Desktop**
-* **.NET 8 SDK**
-* **Node.js 18+**
-* **Git**
+* **Git** **[git clone]**
+* **Docker Desktop**    **[cd scripts && reset_and_seed.cmd]**
+* **.NET 8 SDK**        **[cd src\TourneyMate.Api && dotnet build && dotnet run]**
+* **Node.js 18+**       **[cd src\TourneyMate.Web && npm install && npm run dev]**
