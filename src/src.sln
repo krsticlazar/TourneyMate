@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TourneyMate.Api", "TourneyMate.Api\TourneyMate.Api.csproj", "{3C702C52-E108-7B33-6D25-26C2DF5987B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TourneyMate.Redis", "TourneyMate.Redis\TourneyMate.Redis.csproj", "{880852B4-DED6-3E6D-55D0-E6ADFAA4C167}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3C702C52-E108-7B33-6D25-26C2DF5987B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C702C52-E108-7B33-6D25-26C2DF5987B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C702C52-E108-7B33-6D25-26C2DF5987B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C702C52-E108-7B33-6D25-26C2DF5987B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{880852B4-DED6-3E6D-55D0-E6ADFAA4C167}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{880852B4-DED6-3E6D-55D0-E6ADFAA4C167}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{880852B4-DED6-3E6D-55D0-E6ADFAA4C167}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{880852B4-DED6-3E6D-55D0-E6ADFAA4C167}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F771D437-269D-4388-A495-37B0A281B874}
+	EndGlobalSection
+EndGlobal

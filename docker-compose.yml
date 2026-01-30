@@ -1,0 +1,24 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: tourneymate_redis_6380
+    ports:
+      - "6380:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data_6380:/data
+
+  neo4j:
+    image: neo4j:5
+    container_name: tourneymate_neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/trstenik
+    volumes:
+      - neo4j_data:/data
+
+volumes:
+  redis_data_6380:
+  neo4j_data:

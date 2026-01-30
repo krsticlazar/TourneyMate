@@ -1,0 +1,22 @@
+SELECT 0
+FLUSHDB
+
+
+ZADD tm:lb:t_bsk_1 21 team_bk4 17 team_bk1 14 team_bk2 9 team_bk3
+
+
+ZADD tm:lb:t_fut_2 18 team_ft1 15 team_ft3 10 team_ft2 7 team_ft4
+
+
+ZADD tm:lb:t_chs_1 4 team_ch1 2 team_ch2
+
+
+ZADD tm:lb:t_fut_1 8 team_ft1 2 team_ft2 1 team_ft3 4 team_ft4
+
+
+RPUSH tm:chat:global "{\"userId\":\"viewer01\",\"displayName\":\"Viewer_01\",\"text\":\"Dobrodosli na TourneyMate!\",\"timestampUtc\":\"2026-01-29T12:00:00Z\"}"
+RPUSH tm:chat:global "{\"userId\":\"viewer02\",\"displayName\":\"Viewer_02\",\"text\":\"Koji turnir pratite danas?\",\"timestampUtc\":\"2026-01-29T12:01:00Z\"}"
+
+
+RPUSH tm:chat:tournament:t_bsk_1 "{\"userId\":\"viewer03\",\"displayName\":\"Viewer_03\",\"text\":\"Ajmo BK_Rockets!\",\"timestampUtc\":\"2026-01-29T12:05:00Z\"}"
+RPUSH tm:chat:tournament:t_bsk_1 "{\"userId\":\"viewer04\",\"displayName\":\"Viewer_04\",\"text\":\"GG!\",\"timestampUtc\":\"2026-01-29T12:06:00Z\"}"
