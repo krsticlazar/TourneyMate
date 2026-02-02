@@ -11,7 +11,7 @@ public static class ApiDtos
     public sealed record RateLimitCheckDto(string Scope, string Id, int Max, int WindowSeconds);
 
     // Redis - chat
-    public sealed record SendChatMessageDto(string UserId, string DisplayName, string Text);
+    public sealed record SendChatMessageDto(string Text);
 
     // Neo4j - minimal CRUD
     public sealed record CreatePlayerDto(string PlayerId, string Name);

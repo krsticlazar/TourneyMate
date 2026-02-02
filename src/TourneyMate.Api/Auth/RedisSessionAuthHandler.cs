@@ -23,19 +23,31 @@ public sealed class RedisSessionAuthHandler : AuthenticationHandler<Authenticati
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         if (!Request.Headers.TryGetValue("Authorization", out var auth))
+        {
+            Logger.LogDebug("RedisSessionAuth: no Authorization header on {Path}", Request.Path);
             return AuthenticateResult.NoResult();
+        }
 
         var header = auth.ToString();
         if (!header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        {
+            Logger.LogDebug("RedisSessionAuth: Authorization header not a Bearer token on {Path}", Request.Path);
             return AuthenticateResult.NoResult();
+        }
 
         var token = header["Bearer ".Length..].Trim();
         if (string.IsNullOrWhiteSpace(token))
+        {
+            Logger.LogDebug("RedisSessionAuth: empty Bearer token on {Path}", Request.Path);
             return AuthenticateResult.NoResult();
+        }
 
         var user = await _sessions.GetAsync(token);
         if (user is null)
+        {
+            Logger.LogDebug("RedisSession: Invalid token. Failure message: Invalid or expired token. Path: {Path}", Request.Path);
             return AuthenticateResult.Fail("Invalid or expired token.");
+        }
 
         var claims = new List<Claim>
         {

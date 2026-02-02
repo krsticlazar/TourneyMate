@@ -15,6 +15,10 @@ export default defineConfig([
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
     ],
+    rules: {
+      // allow explicit anys for faster iteration; consider tightening later
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,

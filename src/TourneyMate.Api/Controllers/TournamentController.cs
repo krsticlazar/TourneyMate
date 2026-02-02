@@ -143,4 +143,201 @@ public sealed class TournamentController : ControllerBase
             chat = chatDto
         });
     }
+
+    // Host only - dodaj/ažuriraj bodove za tim u turniru
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Host")]
+    [HttpPost("{tournamentId}/score")]
+    public async Task<IActionResult> UpdateScore(
+        string tournamentId,
+        [FromBody] UpdateScoreRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(tournamentId))
+            return BadRequest(new { error = "Tournament ID is required." });
+
+        if (string.IsNullOrWhiteSpace(request.TeamId))
+            return BadRequest(new { error = "Team ID is required." });
+
+        var username = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(username))
+            return Unauthorized(new { error = "Missing user identity." });
+
+        var client = await _neo.ClientAsync();
+
+        // Proveri da li user hostuje ovaj turnir
+        var hostCheck = await client.Cypher
+            .Match("(h:User { username: $un })-[:HOSTS|COHOSTS]->(tr:Tournament { tournamentId: $tid })")
+            .WithParam("un", username)
+            .WithParam("tid", tournamentId)
+            .Return(tr => tr.As<TournamentNode>())
+            .ResultsAsync;
+
+        if (!hostCheck.Any())
+            return Forbid(); // User ne hostuje ovaj turnir
+
+        // Proveri da li tim učestvuje u turniru
+        var teamCheck = await client.Cypher
+            .Match("(t:Team { teamId: $teamId })-[:ENTERS]->(tr:Tournament { tournamentId: $tid })")
+            .WithParam("teamId", request.TeamId)
+            .WithParam("tid", tournamentId)
+            .Return(t => t.As<TeamNode>())
+            .ResultsAsync;
+
+        if (!teamCheck.Any())
+            return NotFound(new { error = "Team is not participating in this tournament." });
+
+        // Dodaj/ažuriraj bodove u Redis leaderboard
+        await _lb.AddOrUpdateScoreAsync(tournamentId, request.TeamId, request.Score);
+
+        return Ok(new { ok = true, teamId = request.TeamId, score = request.Score });
+    }
+
+    public sealed record UpdateScoreRequest(string TeamId, double Score);
+
+    // Host only - kreiraj novi turnir
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Host")]
+    [HttpPost("create")]
+    public async Task<IActionResult> CreateTournament([FromBody] CreateTournamentRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Name))
+            return BadRequest(new { error = "Tournament name is required." });
+
+        if (string.IsNullOrWhiteSpace(request.Sport))
+            return BadRequest(new { error = "Sport is required." });
+
+        var username = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(username))
+            return Unauthorized(new { error = "Missing user identity." });
+
+        var client = await _neo.ClientAsync();
+
+        // Generiši tournamentId
+        var tournamentId = $"t_{request.Sport.ToLower().Substring(0, 3)}_{Guid.NewGuid().ToString().Substring(0, 8)}";
+
+        // Kreiraj Tournament node
+        await client.Cypher
+            .Create("(tr:Tournament $tournament)")
+            .WithParam("tournament", new
+            {
+                tournamentId,
+                name = request.Name,
+                sport = request.Sport,
+                status = "Open", // Novi turnir je Open
+                createdAt = DateTime.UtcNow
+            })
+            .ExecuteWithoutResultsAsync();
+
+        // Kreiraj HOSTS relaciju
+        await client.Cypher
+            .Match("(h:User { username: $un }), (tr:Tournament { tournamentId: $tid })")
+            .WithParam("un", username)
+            .WithParam("tid", tournamentId)
+            .Create("(h)-[:HOSTS]->(tr)")
+            .ExecuteWithoutResultsAsync();
+
+        return Ok(new { tournamentId, name = request.Name, sport = request.Sport, status = "Open" });
+    }
+
+    // Host only - startuj turnir (Open -> Live)
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Host")]
+    [HttpPost("{tournamentId}/start")]
+    public async Task<IActionResult> StartTournament(string tournamentId)
+    {
+        if (string.IsNullOrWhiteSpace(tournamentId))
+            return BadRequest(new { error = "Tournament ID is required." });
+
+        var username = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(username))
+            return Unauthorized(new { error = "Missing user identity." });
+
+        var client = await _neo.ClientAsync();
+
+        // Proveri da li user hostuje ovaj turnir
+        var hostCheck = await client.Cypher
+            .Match("(h:User { username: $un })-[:HOSTS|COHOSTS]->(tr:Tournament { tournamentId: $tid })")
+            .WithParam("un", username)
+            .WithParam("tid", tournamentId)
+            .Return(tr => tr.As<TournamentNode>())
+            .ResultsAsync;
+
+        var tournament = hostCheck.FirstOrDefault();
+        if (tournament == null)
+            return Forbid();
+
+        // Proveri broj učesnika prema sportu
+        var teamsCount = await client.Cypher
+            .Match("(t:Team)-[:ENTERS]->(tr:Tournament { tournamentId: $tid })")
+            .WithParam("tid", tournamentId)
+            .Return(() => Return.As<long>("count(t)"))
+            .ResultsAsync;
+
+        var count = teamsCount.FirstOrDefault();
+        var minTeams = tournament.sport switch
+        {
+            "Football" => 4,
+            "Basketball" => 4,
+            "Chess" => 2,
+            _ => 2
+        };
+
+        if (count < minTeams)
+            return BadRequest(new { error = $"Tournament needs at least {minTeams} teams to start. Currently has {count} teams." });
+
+        // Promeni status na Live
+        await client.Cypher
+            .Match("(tr:Tournament { tournamentId: $tid })")
+            .WithParam("tid", tournamentId)
+            .Set("tr.status = 'Live'")
+            .ExecuteWithoutResultsAsync();
+
+        // Inicijalizuj leaderboard - dodaj sve timove sa 0 bodova
+        var teams = await client.Cypher
+            .Match("(t:Team)-[:ENTERS]->(tr:Tournament { tournamentId: $tid })")
+            .WithParam("tid", tournamentId)
+            .Return(t => t.As<TeamNode>())
+            .ResultsAsync;
+
+        foreach (var team in teams)
+        {
+            await _lb.AddOrUpdateScoreAsync(tournamentId, team.teamId, 0);
+        }
+
+        return Ok(new { ok = true, status = "Live" });
+    }
+
+    // Host only - završi turnir (Live -> Finished)
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Host")]
+    [HttpPost("{tournamentId}/finish")]
+    public async Task<IActionResult> FinishTournament(string tournamentId)
+    {
+        if (string.IsNullOrWhiteSpace(tournamentId))
+            return BadRequest(new { error = "Tournament ID is required." });
+
+        var username = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(username))
+            return Unauthorized(new { error = "Missing user identity." });
+
+        var client = await _neo.ClientAsync();
+
+        // Proveri da li user hostuje ovaj turnir
+        var hostCheck = await client.Cypher
+            .Match("(h:User { username: $un })-[:HOSTS|COHOSTS]->(tr:Tournament { tournamentId: $tid })")
+            .WithParam("un", username)
+            .WithParam("tid", tournamentId)
+            .Return(tr => tr.As<TournamentNode>())
+            .ResultsAsync;
+
+        if (!hostCheck.Any())
+            return Forbid();
+
+        // Promeni status na Finished
+        await client.Cypher
+            .Match("(tr:Tournament { tournamentId: $tid })")
+            .WithParam("tid", tournamentId)
+            .Set("tr.status = 'Finished'")
+            .ExecuteWithoutResultsAsync();
+
+        return Ok(new { ok = true, status = "Finished" });
+    }
+
+    public sealed record CreateTournamentRequest(string Name, string Sport);
 }

@@ -101,11 +101,11 @@ public sealed class TeamController : ControllerBase
         if (tournament == null)
             return NotFound(new { error = "Tournament not found." });
 
-        // ✅ VALIDACIJA #1: Proveri da li je isti sport
+        // VALIDACIJA #1: Proveri da li je isti sport
         if (!team.sport.Equals(tournament.sport, StringComparison.OrdinalIgnoreCase))
             return BadRequest(new { error = $"Team sport ({team.sport}) does not match tournament sport ({tournament.sport})." });
 
-        // ✅ VALIDACIJA #2: Proveri da li je turnir "Finished"
+        // VALIDACIJA #2: Proveri da li je turnir "Finished"
         if (tournament.status.Equals("Finished", StringComparison.OrdinalIgnoreCase))
             return BadRequest(new { error = "Cannot apply to a finished tournament." });
 
@@ -119,7 +119,22 @@ public sealed class TeamController : ControllerBase
             .ResultsAsync;
 
         if (existingRel.Any())
-            return Conflict(new { error = "Team has already applied or entered this tournament." });
+            return Conflict(new { error = "Vec ste se prijavili na izabrani turnir." });
+
+        // VALIDACIJA #3: Proveri da li kapiten već ima drugi tim u ovom turniru
+        var captainTeamsInTournament = await client.Cypher
+            .Match("(p:Player { playerId: $pid })-[:CAPTAIN_OF]->(otherTeam:Team)-[r]->(tr:Tournament { tournamentId: $trid })")
+            .WithParam("pid", username)
+            .WithParam("trid", tournamentId)
+            .Where("type(r) IN ['APPLIED_FOR', 'ENTERS']")
+            .Return(otherTeam => otherTeam.As<TeamNode>())
+            .ResultsAsync;
+
+        if (captainTeamsInTournament.Any())
+        {
+            var existingTeamName = captainTeamsInTournament.First().name;
+            return Conflict(new { error = $"You already have a team ({existingTeamName}) in this tournament. You cannot apply with multiple teams." });
+        }
 
         // Kreiraj APPLIED_FOR relaciju sa status=Pending
         await client.Cypher
@@ -290,7 +305,7 @@ public sealed class TeamController : ControllerBase
 
         return Ok(new { ok = true, status = "Rejected" });
     }
-    
+
     // Viewer only - vidi timove gde je kapiten
     [Authorize(Roles = "Viewer")]
     [HttpGet("my-teams")]

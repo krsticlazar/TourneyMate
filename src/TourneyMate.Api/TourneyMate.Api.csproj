@@ -5,6 +5,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+  <PropertyGroup>
+    <!-- Suppress common non-critical warnings about unused vars/locals to reduce noise -->
+    <NoWarn>$(NoWarn);CS0168;CS0219</NoWarn>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="DotNetEnv" Version="3.1.1" />

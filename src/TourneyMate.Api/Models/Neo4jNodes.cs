@@ -6,6 +6,7 @@ public sealed class TournamentNode
     public string name { get; set; } = "";
     public string sport { get; set; } = "";
     public string status { get; set; } = "";
+    public string? description { get; set; } = null;
 }
 
 public sealed class TeamNode

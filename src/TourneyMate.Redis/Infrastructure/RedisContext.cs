@@ -17,6 +17,9 @@ public sealed class RedisContext : IAsyncDisposable
 
     public IDatabase Db => _mux.GetDatabase(_db);
 
+    // Expose the underlying connection for server operations (e.g., KEYS, GetServer)
+    public IConnectionMultiplexer Connection => _mux;
+
     public async ValueTask DisposeAsync()
     {
         await _mux.CloseAsync();

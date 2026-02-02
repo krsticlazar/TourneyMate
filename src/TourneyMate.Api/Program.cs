@@ -49,6 +49,9 @@ builder.Services.AddAuthorization();
 builder.Services.AddSingleton(Neo4jConfiguration.Local);
 builder.Services.AddSingleton<Neo4jService>();
 
+// Cleanup Service - briše stare podatke pri application shutdown (CTRL+C)
+builder.Services.AddHostedService<CleanupService>();
+
 var app = builder.Build();
 
 app.UseCors("dev");

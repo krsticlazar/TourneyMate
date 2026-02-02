@@ -23,6 +23,47 @@ public sealed class AuthController : ControllerBase
 
 
     public sealed record LoginRequest(string Username, string Password);
+    public sealed record RegisterRequest(string Username, string Password, string DisplayName);
+
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterRequest req)
+    {
+        if (string.IsNullOrWhiteSpace(req.Username) || string.IsNullOrWhiteSpace(req.Password) || string.IsNullOrWhiteSpace(req.DisplayName))
+            return BadRequest(new { error = "All fields are required." });
+
+        if (req.Password.Length < 6)
+            return BadRequest(new { error = "Password must be at least 6 characters." });
+
+        var client = await _neo.ClientAsync();
+
+        // Proveri da li username već postoji
+        var existing = await client.Cypher
+            .Match("(u:User { username: $un })")
+            .WithParam("un", req.Username)
+            .Return(u => u.As<UserNode>())
+            .ResultsAsync;
+
+        if (existing.Any())
+            return Conflict(new { error = "Username already exists." });
+
+        // Kreiraj Player node (po defaultu Viewer role)
+        var playerId = req.Username; // Koristimo username kao playerId
+        await client.Cypher
+            .Create("(p:Player { playerId: $pid, name: $name })")
+            .WithParam("pid", playerId)
+            .WithParam("name", req.DisplayName)
+            .ExecuteWithoutResultsAsync();
+
+        // Kreiraj User node
+        await client.Cypher
+            .Create("(u:User { username: $un, password: $pw, displayName: $dn, role: 'Viewer' })")
+            .WithParam("un", req.Username)
+            .WithParam("pw", req.Password)
+            .WithParam("dn", req.DisplayName)
+            .ExecuteWithoutResultsAsync();
+
+        return Ok(new { ok = true, message = "User registered successfully." });
+    }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest req)

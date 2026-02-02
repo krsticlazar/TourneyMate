@@ -1,8 +1,10 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
+  /* Allow the app to use full available width/height so it isn't cropped */
+  max-width: none;
+  width: 100%;
+  margin: 0;
   padding: 2rem;
-  text-align: center;
+  text-align: left;
 }
 
 .logo {

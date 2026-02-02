@@ -17,9 +17,7 @@ public sealed class AdminController : ControllerBase
         _neo = neo;
     }
 
-    /// <summary>
-    /// Admin only - lista svih usera
-    /// </summary>
+    // Admin only - lista svih usera
     [HttpGet("users")]
     public async Task<IActionResult> GetAllUsers()
     {
@@ -41,9 +39,7 @@ public sealed class AdminController : ControllerBase
 
     public sealed record SetRoleRequest(string Role);
 
-    /// <summary>
-    /// Admin only - postavi role za usera (Viewer/Host/Admin)
-    /// </summary>
+    // Admin only - postavi role za usera (Viewer/Host/Admin)
     [HttpPost("users/{username}/role")]
     public async Task<IActionResult> SetUserRole(string username, [FromBody] SetRoleRequest req)
     {
