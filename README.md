@@ -1,38 +1,60 @@
-# TourneyMate - Projektni zadatak
+# TourneyMate
 
-## 📌 Opis projekta
-**TourneyMate** je web aplikacija za praćenje lokalnih sportskih turnira u real-time režimu. Sistem omogućava posetiocima da prate turnire, čitaju chat i gledaju leaderboard, dok registrovani korisnici mogu da se prijavljuju na turnire, kreiraju timove i komuniciraju. Hostovi turnira upravljaju prijavama i celokupnim tokom turnira.
+## Opis
+TourneyMate je web aplikacija za pracenje i upravljanje sportskim turnirima.
 
----
+## Tehnologije
+- Backend: ASP.NET Core Web API (.NET)
+- Frontend: React + TypeScript
+- Baze: Neo4j + Redis
+- Kontejneri: Docker + Docker Compose
+- Testiranje:
+  - NUnit (komponentni/backend testovi)
+  - Microsoft Playwright for .NET (E2E i API testovi)
 
-## 👥 Autor
-**Student:** Lazar Krstić, 19190
+## Pokretanje projekta
 
----
+1. Pokreni baze preko Docker-a i ucitaj testne podatke:
+```bash
+scripts\pokreni_docker.cmd
+```
 
-## 🏗️ Tehnologije
+2. Pokreni backend:
+```bash
+cd src\TourneyMate.Api
+dotnet run
+```
 
-### Backend
-* **.NET 8** – API aplikacija
-* **Entity Framework Core** – ORM
-* **Neo4j** – Graph baza za relacione podatke (timovi, turniri, prijave)
-* **Redis** – Za real-time chat i caching
+3. Pokreni frontend:
+```bash
+cd src\TourneyMate.Web
+npm install
+npm run dev
+```
 
-### Frontend
-* **React + TypeScript** – Klijentska aplikacija
+4. Nakon svakog sledeceg pokretanja preskocite prva 3 koraka:
+```bash
+scripts\pokreni_projekat.bat   --Run as administrator
+```
 
-### DevOps
-* **Docker** – Containerizacija baza
-* **Docker Compose** – Orchestration
-* **Redis Insight** - Pogled na redis
-* **Neo4j Browser** - Pogled na Neo4j
+## Pokretanje testova
 
----
+1. Backend testovi (NUnit):
+```bash
+dotnet test src\Api.Tests\Api.Tests.csproj --nologo
+```
 
-## 🚀 Pokretanje aplikacije (lokalni razvoj)
+2. Frontend E2E/API testovi (Playwright):
+```bash
+dotnet test src\Web.Tests\Web.Tests.csproj --nologo
+```
 
-### Preduslovi
-* **Git** **[git clone]**
-* **Docker Desktop**    **[cd scripts && reset_and_seed.cmd]**
-* **.NET 8 SDK**        **[cd src\TourneyMate.Api && dotnet build && dotnet run]**
-* **Node.js 18+**       **[cd src\TourneyMate.Web && npm install && npm run dev]**
+3. Svi testovi odjednom:
+```bash
+dotnet test TourneyMate.sln --nologo
+```
+
+4. Ako Playwright browser-i nisu instalirani:
+```bash
+powershell -ExecutionPolicy Bypass -File src\Web.Tests\bin\Debug\net10.0\playwright.ps1 install
+```
