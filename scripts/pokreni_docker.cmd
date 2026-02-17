@@ -2,10 +2,9 @@
 setlocal EnableExtensions
 
 set "SCRIPT_DIR=%~dp0"
-set "ROOT_DIR=%SCRIPT_DIR%.."
 
-pushd "%ROOT_DIR%"
-docker compose up -d
+pushd "%SCRIPT_DIR%"
+docker compose -f "docker-compose.yml" up -d
 popd
 
 echo Seeding Neo4j...
@@ -25,7 +24,7 @@ if errorlevel 1 (
 )
 
 echo.
-echo ✅ Reset + seed finished.
+echo [OK] Reset + seed finished.
 echo.
 pause
 endlocal
