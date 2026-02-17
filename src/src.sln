@@ -6,6 +6,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TourneyMate.Api", "TourneyM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TourneyMate.Redis", "TourneyMate.Redis\TourneyMate.Redis.csproj", "{880852B4-DED6-3E6D-55D0-E6ADFAA4C167}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api.Tests", "Api.Tests\Api.Tests.csproj", "{A6165843-ACF1-47A4-937B-DD277BFF9756}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.Tests", "Web.Tests\Web.Tests.csproj", "{29238F9A-C087-433D-A3C5-A16D814A7EE2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +24,14 @@ Global
 		{880852B4-DED6-3E6D-55D0-E6ADFAA4C167}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{880852B4-DED6-3E6D-55D0-E6ADFAA4C167}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{880852B4-DED6-3E6D-55D0-E6ADFAA4C167}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6165843-ACF1-47A4-937B-DD277BFF9756}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6165843-ACF1-47A4-937B-DD277BFF9756}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6165843-ACF1-47A4-937B-DD277BFF9756}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6165843-ACF1-47A4-937B-DD277BFF9756}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29238F9A-C087-433D-A3C5-A16D814A7EE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29238F9A-C087-433D-A3C5-A16D814A7EE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29238F9A-C087-433D-A3C5-A16D814A7EE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29238F9A-C087-433D-A3C5-A16D814A7EE2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
