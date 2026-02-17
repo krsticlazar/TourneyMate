@@ -1,12 +1,14 @@
+name: TourneyMate
+
 services:
   redis:
     image: redis:7-alpine
-    container_name: tourneymate_redis_6380
+    container_name: tourneymate_redis
     ports:
       - "6380:6379"
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
-      - redis_data_6380:/data
+      - redis_data:/data
 
   neo4j:
     image: neo4j:5
@@ -20,5 +22,5 @@ services:
       - neo4j_data:/data
 
 volumes:
-  redis_data_6380:
+  redis_data:
   neo4j_data:

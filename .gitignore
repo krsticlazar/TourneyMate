@@ -97,3 +97,10 @@ docker-compose.override.yml
 ############################
 *.db
 *.sqlite
+
+
+############################
+zip_TourneyMate.py
+############################
+
+*.dotnet

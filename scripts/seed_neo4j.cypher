@@ -37,9 +37,7 @@ CREATE (:User {
 });
 
 MATCH (u:User {role:'Viewer'})
-SET u:Player
-SET u.playerId = u.username
-SET u.name = u.displayName;
+SET u:Player, u.playerId = u.username, u.name = u.displayName;
 
 UNWIND [
   {tournamentId:'t_fut_1', name:'Nis_5v5_Cup',   sport:'Football',   status:'Open'},
