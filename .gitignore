@@ -104,3 +104,6 @@ zip_TourneyMate.py
 ############################
 
 *.dotnet
+
+# lokalna dokumentacija / beleznice
+objasnjenje/
